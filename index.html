@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>3D Print & Marketing Pricing Calculator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -19,6 +19,13 @@
             --danger: #e74c3c;
         }
 
+        /* Universal Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: radial-gradient(circle at top right, #0a192f, var(--bg-color));
@@ -26,13 +33,15 @@
             color: var(--text-main);
             line-height: 1.6;
             padding: 20px;
-            margin: 0;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .container {
+            width: 100%;
             max-width: 850px;
-            margin: 0 auto;
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -49,17 +58,20 @@
             font-weight: 700;
             letter-spacing: -0.5px;
             text-shadow: 0 0 20px var(--accent-glow);
+            font-size: 2.2rem;
         }
 
+        /* Layout Grids */
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 25px;
         }
 
-        @media (max-width: 700px) {
-            .grid { grid-template-columns: 1fr; }
-            .container { padding: 20px; }
+        .inner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         .section {
@@ -77,7 +89,6 @@
 
         .section h2 {
             font-size: 1.1rem;
-            margin-top: 0;
             color: var(--accent-blue);
             border-bottom: 1px solid var(--glass-border);
             padding-bottom: 10px;
@@ -95,24 +106,66 @@
             letter-spacing: 0.5px;
         }
 
+        /* Form Inputs */
         input[type="number"] {
             width: 100%;
-            padding: 12px;
+            padding: 14px 12px;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
             border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
+            font-size: 16px; 
             font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
         }
 
-        input[type="number"]:focus {
+        input[type="number"]:focus:not([readonly]) {
             outline: none;
             border-color: var(--accent-blue);
             box-shadow: 0 0 12px var(--accent-glow);
             background: rgba(0, 0, 0, 0.5);
+        }
+
+        input[type="number"][readonly] {
+            cursor: not-allowed;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Mode Toggle UI */
+        .calc-mode {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .calc-mode label {
+            flex: 1;
+            text-align: center;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .calc-mode input[type="radio"] {
+            display: none;
+        }
+
+        .calc-mode span {
+            display: block;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            color: var(--text-muted);
+        }
+
+        .calc-mode input[type="radio"]:checked + span {
+            background: var(--accent-blue);
+            color: #fff;
+            box-shadow: 0 2px 10px var(--accent-glow);
         }
 
         .marketing-section {
@@ -125,6 +178,7 @@
             background: linear-gradient(145deg, rgba(46, 204, 113, 0.05), transparent);
         }
 
+        /* Results Box */
         .results {
             margin-top: 40px;
             background: rgba(0, 168, 255, 0.05);
@@ -135,7 +189,6 @@
             overflow: hidden;
         }
 
-        /* Decorative glow in the results box */
         .results::before {
             content: '';
             position: absolute;
@@ -151,10 +204,10 @@
         }
 
         .results h2 {
-            text-align: center;
             color: #fff;
             position: relative;
             z-index: 1;
+            margin-bottom: 20px;
         }
 
         .result-row {
@@ -192,6 +245,20 @@
             color: var(--text-muted);
             font-style: italic;
         }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 25px 20px; border-radius: 16px; }
+            h1 { font-size: 1.6rem; margin-bottom: 30px; }
+            .grid { grid-template-columns: 1fr; gap: 20px; }
+            .inner-grid { gap: 10px; }
+            .section { padding: 15px; }
+            .result-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .result-row span:last-child { align-self: flex-end; font-size: 1.25rem; }
+            .total-row { flex-direction: column; align-items: center; gap: 10px; text-align: center; font-size: 1.4rem; }
+            .results { padding: 20px; margin-top: 30px; }
+        }
     </style>
 </head>
 <body>
@@ -203,16 +270,16 @@
         <div class="section">
             <h2>Print Specifications</h2>
             <label>Filament Used (Grams)</label>
-            <input type="number" id="printWeight" value="35" min="0" oninput="calculateForward()">
+            <input type="number" id="printWeight" value="35" min="0" step="any" oninput="calculate()">
             
-            <div class="grid" style="gap: 15px;">
+            <div class="inner-grid">
                 <div>
                     <label>Time (Hours)</label>
-                    <input type="number" id="printHours" value="1" min="0" oninput="calculateForward()">
+                    <input type="number" id="printHours" value="1" min="0" oninput="calculate()">
                 </div>
                 <div>
                     <label>Time (Mins)</label>
-                    <input type="number" id="printMinutes" value="52" min="0" max="59" oninput="calculateForward()">
+                    <input type="number" id="printMinutes" value="52" min="0" max="59" oninput="calculate()">
                 </div>
             </div>
         </div>
@@ -220,63 +287,79 @@
         <div class="section">
             <h2>Base Rates (₹)</h2>
             <label>Filament Cost (per 1KG)</label>
-            <input type="number" id="filamentCost" value="850" min="0" oninput="calculateForward()">
+            <input type="number" id="filamentCost" value="850" min="0" step="any" oninput="calculate()">
             
-            <div class="grid" style="gap: 15px;">
+            <div class="inner-grid">
                 <div>
                     <label>Electricity / Hr</label>
-                    <input type="number" id="electricityRate" value="3" min="0" step="0.1" oninput="calculateForward()">
+                    <input type="number" id="electricityRate" value="3" min="0" step="any" oninput="calculate()">
                 </div>
                 <div>
                     <label>Wear / Hr</label>
-                    <input type="number" id="wearRate" value="10" min="0" step="0.5" oninput="calculateForward()">
+                    <input type="number" id="wearRate" value="10" min="0" step="any" oninput="calculate()">
                 </div>
             </div>
 
             <label>Failure Rate / Buffer (%)</label>
-            <input type="number" id="failureRate" value="10" min="0" oninput="calculateForward()">
+            <input type="number" id="failureRate" value="10" min="0" step="any" oninput="calculate()">
         </div>
 
         <div class="section" style="grid-column: 1 / -1;">
             <h2>Post-Processing & Finishing (₹)</h2>
             <p class="note">Include costs for sanding, priming, and painting.</p>
             <label>Painting / Labor Cost Per Unit</label>
-            <input type="number" id="paintingCost" value="0" min="0" oninput="calculateForward()">
+            <input type="number" id="paintingCost" value="0" min="0" step="any" oninput="calculate()">
         </div>
 
         <div class="section marketing-section">
             <h2 style="color: var(--warning);">Meta Ads & Marketing (₹)</h2>
             <p class="note">Your target CAC (Customer Acquisition Cost).</p>
             <label>Ad Spend Per Sale</label>
-            <input type="number" id="adSpend" value="100" min="0" oninput="calculateForward()">
+            <input type="number" id="adSpend" value="100" min="0" step="any" oninput="calculate()">
         </div>
 
         <div class="section">
             <h2>Fulfillment (₹)</h2>
             <p class="note">Logistics and handling.</p>
-            <div class="grid" style="gap: 15px;">
+            <div class="inner-grid">
                 <div>
                     <label>Packing Cost</label>
-                    <input type="number" id="packingCost" value="10" min="0" oninput="calculateForward()">
+                    <input type="number" id="packingCost" value="10" min="0" step="any" oninput="calculate()">
                 </div>
                 <div>
                     <label>Shipping Cost</label>
-                    <input type="number" id="shippingCost" value="50" min="0" oninput="calculateForward()">
+                    <input type="number" id="shippingCost" value="50" min="0" step="any" oninput="calculate()">
                 </div>
             </div>
         </div>
 
         <div class="section pricing-section" style="grid-column: 1 / -1;">
-            <h2 style="color: var(--success);">Pricing Strategy (₹)</h2>
-            <p class="note">Change the Profit Margin to set your Selling Price, OR type a Target Price to see your real margin.</p>
-            <div class="grid">
+            <h2 style="color: var(--success);">Pricing Strategy & Fees (₹)</h2>
+            
+            <label>Payment Gateway / Platform Fee (%)</label>
+            <input type="number" id="gatewayFee" value="2.5" min="0" step="any" oninput="calculate()">
+            
+            <div style="margin-top: 20px;"></div>
+
+            <div class="calc-mode">
+                <label>
+                    <input type="radio" name="calcMode" value="profit" checked onchange="toggleMode()">
+                    <span>Lock Profit Margin</span>
+                </label>
+                <label>
+                    <input type="radio" name="calcMode" value="price" onchange="toggleMode()">
+                    <span>Lock Selling Price</span>
+                </label>
+            </div>
+
+            <div class="inner-grid">
                 <div>
                     <label>Net Profit (Flat ₹)</label>
-                    <input type="number" id="profitMargin" value="100" oninput="calculateForward()">
+                    <input type="number" id="profitMargin" value="100" step="any" oninput="calculate()" style="border-color: var(--success);">
                 </div>
                 <div>
                     <label style="color: #fff;">Target Selling Price (₹)</label>
-                    <input type="number" id="targetPrice" oninput="calculateBackward()" style="border-color: var(--success); background: rgba(46, 204, 113, 0.1);">
+                    <input type="number" id="targetPrice" step="any" oninput="calculate()" readonly style="opacity: 0.5;">
                 </div>
             </div>
         </div>
@@ -301,6 +384,10 @@
             <span id="resFulfillment">₹0.00</span>
         </div>
         <div class="result-row">
+            <span>Payment Gateway Fees:</span>
+            <span id="resGateway" style="color: #bdc3c7;">₹0.00</span>
+        </div>
+        <div class="result-row">
             <span>Your Clean Profit:</span>
             <span id="resProfit" style="color: var(--success);">₹0.00</span>
         </div>
@@ -312,8 +399,35 @@
 </div>
 
 <script>
-    // Shared function to calculate all base costs before profit
-    function getBaseCosts() {
+    // Handles the UI styling and access when flipping between calculation modes
+    function toggleMode() {
+        const mode = document.querySelector('input[name="calcMode"]:checked').value;
+        const profitInput = document.getElementById('profitMargin');
+        const priceInput = document.getElementById('targetPrice');
+
+        if (mode === 'profit') {
+            profitInput.readOnly = false;
+            profitInput.style.opacity = '1';
+            profitInput.style.borderColor = "var(--success)";
+            
+            priceInput.readOnly = true;
+            priceInput.style.opacity = '0.5';
+            priceInput.style.borderColor = "rgba(255, 255, 255, 0.1)";
+        } else {
+            priceInput.readOnly = false;
+            priceInput.style.opacity = '1';
+            priceInput.style.borderColor = "var(--success)";
+            
+            profitInput.readOnly = true;
+            profitInput.style.opacity = '0.5';
+            profitInput.style.borderColor = "rgba(255, 255, 255, 0.1)";
+        }
+        calculate(); // Recalculate immediately on switch
+    }
+
+    // Unified Master Calculation Engine
+    function calculate() {
+        // 1. Gather all inputs
         const weight = parseFloat(document.getElementById('printWeight').value) || 0;
         const hours = parseFloat(document.getElementById('printHours').value) || 0;
         const minutes = parseFloat(document.getElementById('printMinutes').value) || 0;
@@ -324,65 +438,63 @@
         const failurePercent = parseFloat(document.getElementById('failureRate').value) || 0; 
         
         const paintingCost = parseFloat(document.getElementById('paintingCost').value) || 0;
-        
         const adSpend = parseFloat(document.getElementById('adSpend').value) || 0;
         const packing = parseFloat(document.getElementById('packingCost').value) || 0;
         const shipping = parseFloat(document.getElementById('shippingCost').value) || 0;
+        const gatewayFeePercent = parseFloat(document.getElementById('gatewayFee').value) || 0;
 
+        // 2. Base Cost Math
         const totalTimeHours = hours + (minutes / 60);
-        
         const materialCost = (filamentCostPerKg / 1000) * weight;
         const electricityCost = totalTimeHours * elecRate;
         const wearCost = totalTimeHours * wearRate;
         
-        // Calculate failure buffer as a percentage of the raw manufacturing cost
         const rawManufacturingCost = materialCost + electricityCost + wearCost;
         const failureCost = rawManufacturingCost * (failurePercent / 100);
         
         const productionTotal = rawManufacturingCost + failureCost;
         const fulfillmentTotal = packing + shipping;
         
-        // Sum of all expenses before profit
+        // This is everything EXCEPT gateway fees and profit
         const baseTotal = productionTotal + paintingCost + adSpend + fulfillmentTotal;
 
-        // Update display text for breakdowns
+        // 3. Routing Math based on selected mode
+        const mode = document.querySelector('input[name="calcMode"]:checked').value;
+        let finalPrice = 0;
+        let finalProfit = 0;
+        let gatewayCost = 0;
+
+        if (mode === 'profit') {
+            // User set a strict Profit, we must calculate the necessary Selling Price
+            const targetProfit = parseFloat(document.getElementById('profitMargin').value) || 0;
+            const denom = 1 - (gatewayFeePercent / 100);
+            
+            // Avoid division by zero if someone types 100% gateway fee
+            finalPrice = (baseTotal + targetProfit) / (denom <= 0 ? 1 : denom);
+            gatewayCost = finalPrice * (gatewayFeePercent / 100);
+            finalProfit = targetProfit;
+            
+            document.getElementById('targetPrice').value = finalPrice.toFixed(2);
+        } else {
+            // User set a strict Selling Price, we must calculate the resulting Profit
+            const targetPriceInput = document.getElementById('targetPrice').value;
+            finalPrice = targetPriceInput === '' ? 0 : parseFloat(targetPriceInput);
+            
+            gatewayCost = finalPrice * (gatewayFeePercent / 100);
+            finalProfit = finalPrice - baseTotal - gatewayCost;
+            
+            document.getElementById('profitMargin').value = finalProfit.toFixed(2);
+        }
+
+        // 4. Update the visual breakdown
         document.getElementById('resProduction').innerText = `₹${productionTotal.toFixed(2)}`;
         document.getElementById('resPainting').innerText = `₹${paintingCost.toFixed(2)}`;
         document.getElementById('resMarketing').innerText = `₹${adSpend.toFixed(2)}`;
         document.getElementById('resFulfillment').innerText = `₹${fulfillmentTotal.toFixed(2)}`;
-
-        return baseTotal;
-    }
-
-    // Called when user changes costs or profit margin
-    function calculateForward() {
-        const baseTotal = getBaseCosts();
-        const profit = parseFloat(document.getElementById('profitMargin').value) || 0;
+        document.getElementById('resGateway').innerText = `₹${gatewayCost.toFixed(2)}`;
         
-        const finalPrice = baseTotal + profit;
-        
-        document.getElementById('targetPrice').value = finalPrice.toFixed(2);
-        updateFinalDisplay(profit, finalPrice);
-    }
-
-    // Called when user specifically types in a new Selling Price
-    function calculateBackward() {
-        const baseTotal = getBaseCosts();
-        // If the user clears the input completely, default to 0 to prevent NaN errors
-        const targetPriceInput = document.getElementById('targetPrice').value;
-        const targetPrice = targetPriceInput === '' ? 0 : parseFloat(targetPriceInput);
-        
-        const calculatedProfit = targetPrice - baseTotal;
-        
-        document.getElementById('profitMargin').value = calculatedProfit.toFixed(2);
-        updateFinalDisplay(calculatedProfit, targetPrice);
-    }
-
-    function updateFinalDisplay(profit, finalPrice) {
-        document.getElementById('resProfit').innerText = `₹${profit.toFixed(2)}`;
-        
-        // Add visual warning if profit goes negative
-        if(profit < 0) {
+        document.getElementById('resProfit').innerText = `₹${finalProfit.toFixed(2)}`;
+        if (finalProfit < 0) {
             document.getElementById('resProfit').style.color = "var(--danger)";
         } else {
             document.getElementById('resProfit').style.color = "var(--success)";
@@ -392,7 +504,7 @@
     }
 
     // Run standard calculation on page load
-    window.onload = calculateForward;
+    window.onload = calculate;
 </script>
 
 </body>
